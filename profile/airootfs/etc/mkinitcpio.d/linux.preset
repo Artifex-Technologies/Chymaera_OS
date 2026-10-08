@@ -1,0 +1,11 @@
+# Verbatim from archiso's releng profile
+# (archlinux/archiso configs/releng/airootfs/etc/mkinitcpio.d/linux.preset).
+# Builds ONLY the archiso image (no -fallback), at the path the syslinux and
+# efiboot entries reference. Re-sync when bumping archiso.
+
+PRESETS=('archiso')
+
+ALL_kver='/boot/vmlinuz-linux'
+archiso_config='/etc/mkinitcpio.conf.d/archiso.conf'
+
+archiso_image="/boot/initramfs-linux.img"

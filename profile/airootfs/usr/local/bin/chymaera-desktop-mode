@@ -1,0 +1,120 @@
+#!/bin/bash
+
+# Switch the Hyprland session between its two looks without logging out.
+#
+#   omarchy  tiling desktop, Omarchy-style keyboard-first bar (default)
+#   stealth  floating, rounded macOS-style desktop with a menu bar and dock
+#
+# Usage: chymaera-desktop-mode [toggle|omarchy|stealth|apply|status]
+#
+# `apply` re-creates the bar, dock and app theming for the *current* mode
+# without changing it; the session runs it once at login so the shell matches
+# whatever was last chosen. The mode is one word in
+# ~/.local/state/chymaera/desktop-mode, read by ~/.config/hypr/hyprland.lua.
+#
+# Modelled on Omarchy's toggle scripts (MIT, Copyright (c) David Heinemeier
+# Hansson; see THIRD_PARTY_NOTICES.md): write a small state file, then let
+# `hyprctl reload` re-run the config.
+
+set -u
+
+STATE_DIR=${XDG_STATE_HOME:-$HOME/.local/state}/chymaera
+STATE_FILE=$STATE_DIR/desktop-mode
+CONFIG=${XDG_CONFIG_HOME:-$HOME/.config}
+
+current_mode() {
+  local value
+  value=$(cat "$STATE_FILE" 2>/dev/null)
+  if [[ $value == "stealth" ]]; then
+    echo stealth
+  else
+    echo omarchy
+  fi
+}
+
+# Set one key in the [Settings] section of a GTK settings.ini, creating the
+# file if needed. Plain sed keeps this free of a dconf/gsettings dependency.
+set_gtk_setting() {
+  local file=$1 key=$2 value=$3
+  mkdir -p "$(dirname "$file")"
+  [[ -f $file ]] || printf '[Settings]\n' >"$file"
+  if grep -q "^$key=" "$file"; then
+    sed -i "s|^$key=.*|$key=$value|" "$file"
+  else
+    sed -i "/^\[Settings\]/a $key=$value" "$file"
+  fi
+}
+
+apply_theme() {
+  local mode=$1 icons kvantum
+  if [[ $mode == "stealth" ]]; then
+    icons=MacTahoe-dark
+    kvantum=MacTahoeDark
+  else
+    icons=Adwaita
+    kvantum=KvAdaptaDark
+  fi
+
+  local dir
+  for dir in gtk-3.0 gtk-4.0; do
+    set_gtk_setting "$CONFIG/$dir/settings.ini" gtk-icon-theme-name "$icons"
+    set_gtk_setting "$CONFIG/$dir/settings.ini" gtk-cursor-theme-name MacTahoe-dark
+  done
+
+  mkdir -p "$CONFIG/Kvantum"
+  printf '[General]\ntheme=%s\n' "$kvantum" >"$CONFIG/Kvantum/kvantum.kvconfig"
+}
+
+# Bar and dock are separate processes per look; restart them rather than trying
+# to reconfigure a running one.
+apply_shell() {
+  local mode=$1
+
+  # The dock's name is 18 characters, and the kernel truncates process names to
+  # 15, so `pkill -x nwg-dock-hyprland` matches nothing and leaves the old dock
+  # running. Match the command line instead.
+  pkill -x waybar
+  pkill -f '^nwg-dock-hyprland'
+  sleep 0.3
+
+  setsid -f waybar -c "$CONFIG/waybar/$mode/config.jsonc" -s "$CONFIG/waybar/$mode/style.css" >/dev/null 2>&1
+
+  if [[ $mode == "stealth" ]]; then
+    # No -s: the dock resolves its stylesheet relative to
+    # ~/.config/nwg-dock-hyprland/ and defaults to style.css there. An absolute
+    # path gets prefixed with that directory and fails to load.
+    setsid -f nwg-dock-hyprland -i 44 -mb 8 -w 5 -c fuzzel >/dev/null 2>&1
+  fi
+}
+
+apply() {
+  local mode
+  mode=$(current_mode)
+  apply_theme "$mode"
+  apply_shell "$mode"
+}
+
+set_mode() {
+  mkdir -p "$STATE_DIR"
+  printf '%s\n' "$1" >"$STATE_FILE"
+  # Re-runs hyprland.lua, which picks up the new mode file.
+  hyprctl reload >/dev/null 2>&1
+  apply
+}
+
+case ${1:-toggle} in
+  toggle)
+    if [[ $(current_mode) == "stealth" ]]; then
+      set_mode omarchy
+    else
+      set_mode stealth
+    fi
+    ;;
+  omarchy | stealth) set_mode "$1" ;;
+  apply) apply ;;
+  status) current_mode ;;
+  *)
+    echo "Usage: chymaera-desktop-mode [toggle|omarchy|stealth|apply|status]" >&2
+    exit 1
+    ;;
+esac

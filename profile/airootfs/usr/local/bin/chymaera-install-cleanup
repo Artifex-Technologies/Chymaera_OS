@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# Runs inside the target system, right after Calamares' unpackfs has copied the
+# live image onto the disk (see /etc/calamares/settings.conf). Removes the
+# live-medium-only pieces and restores what mkarchiso strips, so the installed
+# system boots on its own and has a real login.
+#
+# Everything here exists because the live image is not an installable root:
+#
+#  * mkarchiso empties /boot, so there is no kernel to boot.
+#  * the initramfs preset and drop-in are archiso's, building an initramfs that
+#    looks for the live squashfs and cannot mount a real root.
+#  * the live account is passwordless: sudo, polkit and SDDM autologin were all
+#    opened up for it, and Plasma's screen locker was turned off.
+#
+# Keep the removal list in step with profile/airootfs/etc.
+
+set -euo pipefail
+
+say() { printf 'chymaera-install-cleanup: %s\n' "$*"; }
+
+# 1. Seed new users with the live user's desktop config. Both Hyprland looks and
+#    the Plasma fallback live under /home/live/.config; without this the
+#    installed user gets a bare desktop. /etc/skel is what useradd copies from,
+#    so Calamares' users job picks it up and handles ownership.
+if [[ -d /home/live/.config ]]; then
+  install -d -m 0755 /etc/skel
+  cp -a /home/live/.config /etc/skel/
+  say "seeded /etc/skel from the live user's .config"
+fi
+
+# 2. Remove the live-only files and the account's home directory.
+live_only=(
+  /etc/mkinitcpio.conf.d/archiso.conf
+  /etc/sddm.conf.d/autologin.conf
+  /etc/sudoers.d/00-live-nopasswd
+  /etc/polkit-1/rules.d/49-live-nopasswd.rules
+  /etc/sysusers.d/live.conf
+  /etc/tmpfiles.d/live-home.conf
+  /etc/xdg/kscreenlockerrc
+)
+rm -f -- "${live_only[@]}"
+rm -rf -- /home/live
+say "removed live-only configuration"
+
+# 3. Restore the stock initramfs preset. Arch generates it from mkinitcpio's own
+#    template (see /usr/share/libalpm/scripts/mkinitcpio), so use that rather
+#    than a hand-written copy that could drift. The stock preset builds only the
+#    default image, which is also the faster option.
+template=/usr/share/mkinitcpio/hook.preset
+[[ -s $template ]] || { say "error: $template missing or empty, cannot restore the preset"; exit 1; }
+install -d -m 0755 /etc/mkinitcpio.d
+sed 's|%PKGBASE%|linux|g' "$template" >/etc/mkinitcpio.d/linux.preset
+# An empty or wrong preset builds an initramfs that cannot boot and nothing
+# else would notice until first boot, so check what was written.
+grep -q "^PRESETS=" /etc/mkinitcpio.d/linux.preset \
+  || { say "error: generated linux.preset has no PRESETS line"; exit 1; }
+
+# 4. Put the kernel back in /boot. The pacman hook does exactly this on a normal
+#    install; mkarchiso deleted the result, and the package's own copy under
+#    /usr/lib/modules survives.
+installed_kernel=0
+for dir in /usr/lib/modules/*/; do
+  [[ -r ${dir}pkgbase && -r ${dir}vmlinuz ]] || continue
+  [[ $(<"${dir}pkgbase") == linux ]] || continue
+  install -Dm644 -- "${dir}vmlinuz" /boot/vmlinuz-linux
+  installed_kernel=1
+done
+if (( ! installed_kernel )); then
+  say "error: no 'linux' kernel found under /usr/lib/modules"
+  exit 1
+fi
+say "restored /boot/vmlinuz-linux and the stock mkinitcpio preset"
+
+# 5. Make sure pacman can verify packages. The installed system needs this for
+#    `pacman -Syu` and for Sarina to install anything later. Only initialise if
+#    the image did not carry a keyring.
+if [[ ! -s /etc/pacman.d/gnupg/pubring.gpg ]]; then
+  say "no pacman keyring in the image; initialising"
+  pacman-key --init
+  pacman-key --populate archlinux blackarch
+fi

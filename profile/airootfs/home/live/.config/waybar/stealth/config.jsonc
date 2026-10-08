@@ -1,0 +1,37 @@
+// The stealth look's bar: a macOS-style menu bar. Active application on the
+// left, status and clock on the right, nothing that looks like a tiling setup.
+{
+  "layer": "top",
+  "position": "top",
+  "height": 28,
+  "spacing": 14,
+  "modules-left": ["hyprland/window"],
+  "modules-center": [],
+  "modules-right": ["tray", "pulseaudio", "network", "battery", "clock"],
+
+  "hyprland/window": {
+    "format": "{class}",
+    "max-length": 40
+  },
+  "clock": {
+    // No GNU dash flags (%-d, %-I): Waybar formats with fmt, which rejects them,
+    // and the module silently disappears from the bar.
+    "format": "{:%a %b %d  %I:%M %p}"
+  },
+  "network": {
+    "format-wifi": "wifi",
+    "format-ethernet": "eth",
+    "format-disconnected": "",
+    "tooltip-format": "{essid} {ipaddr}"
+  },
+  "pulseaudio": {
+    "format": "vol",
+    "format-muted": "mute",
+    "on-click": "pavucontrol"
+  },
+  "battery": {
+    "format": "{capacity}%",
+    "states": { "warning": 25, "critical": 10 }
+  },
+  "tray": { "spacing": 10 }
+}

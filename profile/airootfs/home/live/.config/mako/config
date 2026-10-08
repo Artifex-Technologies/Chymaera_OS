@@ -1,0 +1,9 @@
+# Notifications, shared by both looks.
+font=sans-serif 11
+background-color=#1e1e1eee
+text-color=#f5f5f7
+border-radius=12
+border-size=0
+padding=12
+margin=12
+default-timeout=6000

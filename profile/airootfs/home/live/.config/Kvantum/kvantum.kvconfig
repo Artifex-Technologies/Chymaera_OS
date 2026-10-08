@@ -1,0 +1,4 @@
+# MacTahoe ships MacTahoe.kvconfig (light) and MacTahoeDark.kvconfig, both
+# inside the single "MacTahoe" Kvantum theme directory.
+[General]
+theme=MacTahoeDark

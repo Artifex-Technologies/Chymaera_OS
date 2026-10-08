@@ -1,0 +1,21 @@
+/* Dock for the stealth look: a translucent rounded shelf, macOS-style. */
+window {
+  background: rgba(30, 30, 30, 0.55);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+#box {
+  padding: 6px 10px;
+}
+
+button {
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  padding: 4px;
+}
+
+button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}

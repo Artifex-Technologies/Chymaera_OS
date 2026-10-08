@@ -1,0 +1,303 @@
+# Chymaera Linux package list for mkarchiso.
+#
+# Section 1 is archiso's releng base list, unmodified (installer, live-boot,
+# and hardware-support packages: archlinux/archiso configs/releng/packages.x86_64).
+# Sections 2+ are Chymaera additions. Keeping releng's list intact rather than
+# trimming it avoids silently dropping live-boot/hardware support we haven't
+# individually verified we can do without.
+
+# --- releng base (unmodified) ---
+alsa-utils
+amd-ucode
+arch-install-scripts
+archinstall
+b43-fwcutter
+base
+bcachefs-tools
+bind
+bolt
+brltty
+btrfs-progs
+clonezilla
+cloud-init
+cryptsetup
+darkhttpd
+ddrescue
+dhcpcd
+diffutils
+dmidecode
+dmraid
+dnsmasq
+dosfstools
+e2fsprogs
+edk2-shell
+efibootmgr
+espeakup
+ethtool
+exfatprogs
+f2fs-tools
+fatresize
+foot-terminfo
+fsarchiver
+ghostty-terminfo
+gpart
+gpm
+gptfdisk
+grml-zsh-config
+grub
+hdparm
+hyperv
+intel-ucode
+irssi
+iw
+iwd
+jfsutils
+kitty-terminfo
+kmscon-terminfo
+ldns
+less
+lftp
+libfido2
+libusb-compat
+linux
+linux-atm
+linux-firmware
+linux-firmware-marvell
+livecd-sounds
+lsscsi
+lvm2
+lynx
+man-db
+man-pages
+mc
+mdadm
+memtest86+
+memtest86+-efi
+mkinitcpio
+mkinitcpio-archiso
+mkinitcpio-nfs-utils
+mmc-utils
+modemmanager
+mtools
+nano
+nbd
+ndisc6
+nfs-utils
+nilfs-utils
+nmap
+ntfsprogs
+nvme-cli
+open-iscsi
+open-vm-tools
+openconnect
+openpgp-card-tools
+openssh
+openvpn
+partclone
+parted
+partimage
+pcsclite
+ppp
+pptpclient
+pv
+qemu-guest-agent
+refind
+reflector
+rsync
+rxvt-unicode-terminfo
+screen
+sdparm
+sequoia-sq
+sg3_utils
+smartmontools
+sof-firmware
+squashfs-tools
+sudo
+syslinux
+systemd-resolvconf
+tcpdump
+terminus-font
+testdisk
+tmux
+tpm2-tools
+tpm2-tss
+udftools
+usb_modeswitch
+usbmuxd
+usbutils
+vim
+virtualbox-guest-utils-nox
+vpnc
+wireless-regdb
+wireless_tools
+wpa_supplicant
+wvdial
+xdg-utils
+xfsprogs
+xl2tpd
+zsh
+
+# --- KDE Plasma desktop (primary DE; plasma-meta per Sarina's README
+# "References" section) ---
+plasma-meta
+sddm
+dolphin
+konsole
+kate
+ark
+okular
+firefox
+
+# --- desktop networking/audio (releng is CLI-oriented; a desktop system
+# wants NetworkManager + PipeWire, in addition to releng's iwd/dhcpcd/modemmanager
+# for live-boot flexibility) ---
+networkmanager
+plasma-nm
+pipewire
+pipewire-alsa
+pipewire-pulse
+pipewire-jack
+wireplumber
+
+# --- Hyprland session (second desktop, selectable at the SDDM greeter) ---
+# Plasma stays the autologin session until this one has been boot-tested; see
+# docs/DESKTOP.md for the phasing and the one-line switch. Keybindings and the
+# two-look design come from Omarchy. All of these are in [extra]; resolved
+# against live repos with no provider menus.
+hyprland
+uwsm
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+hyprpolkitagent
+waybar
+nwg-dock-hyprland
+mako
+fuzzel
+foot
+grim
+slurp
+wl-clipboard
+cliphist
+brightnessctl
+playerctl
+
+# --- VPN ---
+# WireGuard userspace tools, for Proton VPN WireGuard configs and NetworkManager's
+# wg support. The Proton app itself is deliberately not baked in: it needs an
+# account and is installed on demand (docs/DESKTOP.md, "Proton VPN").
+wireguard-tools
+
+# --- graphical installer ---
+# calamares is AUR-only (not in core/extra/multilib) — built locally from
+# packages/pkgbuilds/calamares into the [chymaera] repo, same as sarina-git.
+# archinstall (releng base, above) stays available as a CLI/scripted option;
+# Calamares is meant to be the primary live-session installer. No Chymaera
+# branding yet. The job sequence is in airootfs/etc/calamares/ — see
+# docs/INSTALLER.md.
+calamares
+
+# --- desktop theming (macOS-like look) ---
+# Built locally into [chymaera] from packages/pkgbuilds/, same as calamares.
+# Both light and dark variants install; the live session defaults to dark and
+# either can be picked in System Settings > Global Theme.
+mactahoe-kde-theme
+mactahoe-icon-theme
+# Qt widget style the theme targets. Without it Plasma falls back to Breeze
+# widgets inside MacTahoe window frames, which looks half-applied.
+kvantum
+
+# --- security tooling (hand-picked core) ---
+# Chymaera ships a small, offline-usable core rather than baking in the
+# blackarch-* category groups. Those groups pulled in several thousand
+# packages, unresolvable lib32-* dependencies, and half a dozen provider
+# menus, and no one had validated the combination (see docs/ARCHITECTURE.md).
+#
+# Everything beyond this core is installed after the fact, agent-assisted, by
+# Sarina -- which also owns categorising newly installed tools into the Plasma
+# menu. The core exists so the live session is still useful with no network:
+# air-gapped client sites and offline forensics are exactly where a live USB
+# matters most, and that is the one thing a download-on-demand model cannot do.
+#
+# releng's base list (above) already covers nmap, tcpdump, testdisk, ddrescue,
+# clonezilla and fsarchiver, so those are deliberately not repeated here.
+
+# blackarch-keyring makes the *installed* system trust [blackarch], so Sarina
+# can install from it later. This is what keeps the lean ISO expandable.
+blackarch-keyring
+
+# recon / scanning
+masscan
+dnsrecon
+whois
+
+# traffic capture / MITM
+wireshark-qt
+bettercap
+
+# wireless
+aircrack-ng
+reaver
+hcxtools
+
+# password attacks
+john
+hashcat
+hydra
+
+# web application
+sqlmap
+nikto
+gobuster
+ffuf
+wpscan
+burpsuite
+
+# exploitation
+metasploit
+
+# reverse engineering
+radare2
+binwalk
+
+# forensics
+sleuthkit
+foremost
+
+# supporting utilities
+socat
+openbsd-netcat
+proxychains-ng
+responder
+
+# --- Sarina ---
+# sarina-git is built locally from the packages/sarina submodule into the
+# [chymaera] repo — see scripts/build-sarina-package.sh.
+git
+python
+sarina-git
+
+# --- explicit provider choices ---
+# Six virtual deps in the set above have multiple providers, so pacstrap stops
+# and prints a numbered menu for each (tessdata alone lists 128 options). It is
+# non-interactive under mkarchiso, so it silently takes option 1 — which for
+# tessdata means Afrikaans OCR data, and for ttf-font means gnu-free-fonts.
+# Naming the provider we actually want makes the build deterministic and drops
+# several hundred lines of menu noise from the log.
+#
+# NOTE: no trailing comments on these lines. mkarchiso parses this file with
+# `sed '/^[[:blank:]]*#.*/d;s/#.*//;/^[[:blank:]]*$/d'`, which strips a trailing
+# comment but leaves the whitespace before it, producing a package name with
+# trailing spaces that pacman then cannot resolve.
+
+# libxtables.so=12-64 (option 1 would be `iptables`)
+iptables-nft
+# mysql
+mariadb
+# oci-runtime
+crun
+# qt6-multimedia-backend
+qt6-multimedia-ffmpeg
+# tessdata (option 1 is tesseract-data-afr)
+tesseract-data-eng
+# ttf-font (option 1 is gnu-free-fonts)
+noto-fonts

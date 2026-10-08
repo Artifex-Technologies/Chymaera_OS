@@ -1,0 +1,10 @@
+# Window decorations: MacTahoe aurorae, traffic lights on the left.
+#
+# XIA is close, minimize, maximize -- macOS order, and what the aurorae
+# theme's own rc uses (LeftButtons=XIA). Upstream's look-and-feel "defaults"
+# file disagrees and says XAI; this follows the decoration, not that file.
+[org.kde.kdecoration2]
+ButtonsOnLeft=XIA
+ButtonsOnRight=
+library=org.kde.kwin.aurorae
+theme=__aurorae__svg__MacTahoe-Dark

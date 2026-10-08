@@ -1,0 +1,28 @@
+# MacTahoe icon and cursor themes by vinceliuice.
+#
+# Separate package from mactahoe-kde-theme because it is far larger (~84 MB
+# unpacked vs ~5 MB) and is the piece most likely to be dropped if the ISO
+# needs to slim down -- the Plasma theme still works without it, just with
+# Breeze icons.
+#
+# Unlike the KDE theme, upstream's install.sh here takes -d DIR, so it is run
+# directly rather than reimplemented. It installs the cursor theme too.
+
+_commit=839848b9a8a38a92a6936e30c4abe35cc6f2546d
+pkgname=mactahoe-icon-theme
+pkgver=0.r0.g839848b
+pkgrel=1
+pkgdesc="MacTahoe icon and cursor themes (light and dark)"
+arch=('any')
+url="https://github.com/vinceliuice/MacTahoe-icon-theme"
+license=('GPL-3.0-or-later')
+makedepends=('librsvg')
+source=("$pkgname-$_commit.tar.gz::$url/archive/$_commit.tar.gz")
+sha256sums=('00cb36a3883e40687ade9f57a0c1dd3e14fda84b73efc69aa86e2be67f32ab0a')
+
+package() {
+  cd "$srcdir/MacTahoe-icon-theme-$_commit"
+  install -dm755 "$pkgdir/usr/share/icons"
+  ./install.sh -d "$pkgdir/usr/share/icons"
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING" 2>/dev/null || true
+}

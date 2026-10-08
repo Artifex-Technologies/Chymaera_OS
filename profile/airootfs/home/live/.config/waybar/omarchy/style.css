@@ -1,0 +1,25 @@
+* {
+  font-family: sans-serif;
+  font-size: 13px;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+}
+
+window#waybar {
+  background: #1a1b26;
+  color: #c0caf5;
+}
+
+#workspaces button {
+  padding: 0 8px;
+  color: #565f89;
+  background: transparent;
+}
+
+#workspaces button.active {
+  color: #33ccff;
+}
+
+#battery.warning { color: #e0af68; }
+#battery.critical { color: #f7768e; }

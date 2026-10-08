@@ -1,0 +1,10 @@
+# Dark by default. The light variants are installed too -- switch the whole
+# set in System Settings > Colours and Global Theme, no extra tooling needed.
+[General]
+ColorScheme=MacTahoeDark
+
+[Icons]
+Theme=MacTahoe-dark
+
+[KDE]
+widgetStyle=kvantum

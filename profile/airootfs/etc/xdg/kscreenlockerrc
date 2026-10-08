@@ -1,0 +1,4 @@
+# No password exists to unlock with, so locking would strand the session.
+[Daemon]
+Autolock=false
+LockOnResume=false

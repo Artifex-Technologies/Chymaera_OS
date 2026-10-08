@@ -1,6 +1,6 @@
-# Chymaera OS
+# Chymaera Linux
 
-Chymaera OS is an Arch-based distribution built for security research and
+Chymaera Linux is an Arch-based distribution built for security research and
 penetration testing, combining:
 
 - **[Arch Linux](https://archlinux.org/)** as the rolling-release base
@@ -86,7 +86,7 @@ The design, measurements and everything still unverified are in
 ## Repository layout
 
 ```
-Chymaera_OS/
+Chymaera_Linux/
 ├── profile/                  # archiso profile used to build the live/install ISO
 │   ├── profiledef.sh         # ISO metadata (name, label, boot modes, etc.)
 │   ├── packages.x86_64       # package list installed into the ISO/target system
@@ -114,7 +114,7 @@ Building requires an Arch Linux (or Arch container) environment with
 ```bash
 sudo pacman -S --needed archiso base-devel git
 git clone --recurse-submodules https://github.com/Artifex-Technologies/Chymaera_OS.git
-cd Chymaera_OS
+cd Chymaera_Linux
 
 # 1. Build local packages (Sarina, Calamares) as a regular user (makepkg refuses to run as root)
 ./scripts/build-local-packages.sh

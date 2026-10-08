@@ -1,0 +1,95 @@
+name: Build ISO
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - "profile/**"
+      - "packages/**"
+      - "scripts/**"
+      - ".github/workflows/build-iso.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+      # A full BlackArch + Plasma pacstrap does not come close to fitting in
+      # the ~14 GB free on a GitHub runner's root disk (where the container's
+      # writable layer lives). /mnt is the runner's separate ~70 GB scratch
+      # SSD — mount it in so the work tree, package cache and ISO live there.
+      volumes:
+        - /mnt:/mnt
+    steps:
+      # Must come first: everything below writes into these paths.
+      - name: Stage build directories on the scratch disk
+        run: |
+          echo "=== disk before ==="; df -h
+          rm -rf /mnt/chymaera
+          mkdir -p /mnt/chymaera/work /mnt/chymaera/out /mnt/chymaera/pkgcache
+          # mkarchiso runs `pacstrap -c`, which downloads into the *host* cache
+          # rather than the target — tens of GB for this package set, so that
+          # has to move off / as well.
+          rm -rf /var/cache/pacman/pkg
+          mkdir -p /var/cache/pacman
+          ln -sfn /mnt/chymaera/pkgcache /var/cache/pacman/pkg
+
+      # actions/checkout needs git already present in the job container,
+      # and archlinux:latest has nothing preinstalled. -Syu rather than -Sy:
+      # a partial upgrade against a stale image layer can break pacman itself.
+      - name: Install git (needed before checkout can run)
+        run: pacman -Syu --noconfirm --needed git
+
+      # packages/sarina is a private repo (ChymaeraLabs/Sarina). The default
+      # GITHUB_TOKEN cannot check out a different private repo, so this
+      # needs a PAT/deploy key with read access to it, stored as the
+      # SARINA_REPO_TOKEN secret. Until that secret is added, the main repo
+      # still checks out fine (falls back to the default token below), but
+      # the submodule checkout will fail on private-repo access.
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.SARINA_REPO_TOKEN || github.token }}
+
+      - name: Install remaining build dependencies
+        run: |
+          pacman -Syu --noconfirm --needed archiso curl base-devel sudo
+
+      - name: Build local packages (sarina-git, calamares; as non-root, makepkg refuses root)
+        run: |
+          useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+          chown -R builder:builder .
+          sudo -u builder ./scripts/build-local-packages.sh
+
+      # The disk watcher matters: when / or /mnt fills, the runner agent is
+      # killed outright and GitHub uploads *no* log for the job at all, so the
+      # failure is invisible. Printing free space every 30s means the tail of
+      # the log always shows which filesystem ran out.
+      - name: Build ISO (as root; mkarchiso requires it)
+        env:
+          CHYMAERA_WORK_DIR: /mnt/chymaera/work
+          CHYMAERA_OUT_DIR: /mnt/chymaera/out
+        run: |
+          ( while sleep 30; do
+              echo "[disk] / $(df -h --output=avail / | tail -1 | tr -d ' ') free | /mnt $(df -h --output=avail /mnt | tail -1 | tr -d ' ') free"
+            done ) &
+          watcher=$!
+          trap 'kill "$watcher" 2>/dev/null || true' EXIT
+          ./scripts/build.sh
+
+      - name: Disk usage report
+        if: always()
+        run: |
+          echo "=== disk after ==="; df -h
+          du -sh /mnt/chymaera/* 2>/dev/null || true
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chymaera-iso
+          path: /mnt/chymaera/out/*.iso
+          if-no-files-found: error

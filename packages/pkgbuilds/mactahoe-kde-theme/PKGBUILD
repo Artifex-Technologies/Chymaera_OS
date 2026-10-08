@@ -1,0 +1,64 @@
+# MacTahoe KDE theme by vinceliuice, vendored the same way as calamares:
+# not in Arch's repos, so it is built here into the local [chymaera] repo.
+#
+# Pinned to a commit rather than a tag because upstream publishes no releases.
+# Bump _commit and sha256sums together when updating, and re-check that the
+# directory names below still match -- package() mirrors upstream install.sh
+# by hand rather than running it, because that script installs into $HOME or
+# /usr directly and has no DESTDIR.
+#
+# Deliberately NOT installed: plasma/layout-templates/org.github.desktop.MacOS*
+# Those are the macOS panel layouts, and they include a dock. Chymaera keeps
+# Plasma's stock bottom panel.
+
+_commit=cbf6a1f71b591d143184855d62f6272ce533e7c3
+pkgname=mactahoe-kde-theme
+pkgver=0.r0.gcbf6a1f
+pkgrel=1
+pkgdesc="MacTahoe Plasma theme: aurorae decorations with macOS traffic-light buttons, colour schemes, desktop theme, SDDM theme and wallpapers (light and dark)"
+arch=('any')
+url="https://github.com/vinceliuice/MacTahoe-kde"
+license=('LGPL-3.0-or-later')
+depends=('plasma-desktop')
+optdepends=('kvantum: Qt widget styling to match the theme'
+            'mactahoe-icon-theme: matching icon and cursor themes')
+source=("$pkgname-$_commit.tar.gz::$url/archive/$_commit.tar.gz")
+sha256sums=('b8b427a036438100faeaf2204cde3e5b4e09efc1a06e7b620a072167bd6b4256')
+
+package() {
+  cd "$srcdir/MacTahoe-kde-$_commit"
+
+  install -dm755 "$pkgdir/usr/share/"{color-schemes,Kvantum,wallpapers,sddm/themes}
+  install -dm755 "$pkgdir/usr/share/plasma/"{desktoptheme,look-and-feel}
+  install -dm755 "$pkgdir/usr/share/aurorae/themes"
+
+  # Shared between both variants
+  cp -r Kvantum/MacTahoe        "$pkgdir/usr/share/Kvantum/"
+  cp -r wallpapers/MacTahoe     "$pkgdir/usr/share/wallpapers/"
+
+  local color
+  for color in Light Dark; do
+    cp -r "color-schemes/MacTahoe$color.colors"                       "$pkgdir/usr/share/color-schemes/"
+    cp -r "plasma/desktoptheme/MacTahoe-$color"                       "$pkgdir/usr/share/plasma/desktoptheme/"
+    cp -r plasma/desktoptheme/icons                                   "$pkgdir/usr/share/plasma/desktoptheme/MacTahoe-$color/"
+    cp -r "plasma/look-and-feel/com.github.vinceliuice.MacTahoe-$color" "$pkgdir/usr/share/plasma/look-and-feel/"
+    cp -r "wallpapers/MacTahoe-$color"                                "$pkgdir/usr/share/wallpapers/"
+
+    # Aurorae, mirroring upstream install_aurorae(): the decoration SVG, the
+    # matching rc renamed to <theme>rc, the traffic-light button icons, and
+    # metadata whose "theme_name" placeholder must be substituted per variant
+    # or Plasma cannot tell the two apart.
+    local aur="$pkgdir/usr/share/aurorae/themes/MacTahoe-$color"
+    install -dm755 "$aur"
+    install -m644 "aurorae/MacTahoe-$color"/*.svg  "$aur/"
+    install -m644 "aurorae/icons-$color"/*.svg     "$aur/"
+    install -m644 "aurorae/${color}rc"             "$aur/MacTahoe-${color}rc"
+    install -m644 aurorae/metadata.desktop aurorae/metadata.json "$aur/"
+    sed -i "s/theme_name/MacTahoe-$color/g" "$aur/metadata.desktop" "$aur/metadata.json"
+  done
+
+  # SDDM greeter (6.0 = the Plasma 6 variant; MacTahoe-5.0 is for Plasma 5)
+  cp -r sddm/MacTahoe-6.0 "$pkgdir/usr/share/sddm/themes/MacTahoe"
+
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

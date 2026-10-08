@@ -1,0 +1,26 @@
+* {
+  font-family: sans-serif;
+  font-size: 13px;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+}
+
+window#waybar {
+  background: rgba(30, 30, 30, 0.72);
+  color: #f5f5f7;
+}
+
+#window {
+  font-weight: bold;
+  padding-left: 14px;
+}
+
+#clock, #battery, #network, #pulseaudio {
+  padding: 0 4px;
+}
+
+#clock { padding-right: 14px; }
+
+#battery.warning { color: #ffd60a; }
+#battery.critical { color: #ff453a; }
