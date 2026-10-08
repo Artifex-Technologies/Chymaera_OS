@@ -1,0 +1,22 @@
+# archiso build output
+work/
+out/
+*.iso
+*.iso.sig
+*.sha256sum
+
+# local pacman repo built by scripts/build-agent-package.sh
+/repo/
+
+# PKGBUILD build artifacts
+packages/**/pkg/
+packages/**/src/
+packages/**/*.pkg.tar.*
+packages/**/*.log
+
+# editor / OS cruft
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

@@ -1,0 +1,18 @@
+# These are Linux-only build scripts/configs — always store and check them
+# out with LF endings, regardless of a contributor's core.autocrlf setting.
+*.sh text eol=lf
+PKGBUILD text eol=lf
+*.conf text eol=lf
+*.cfg text eol=lf
+packages.x86_64 text eol=lf
+profiledef.sh text eol=lf
+*.png binary
+*.preset text eol=lf
+*.yml text eol=lf
+linux.preset text eol=lf
+
+# Everything overlaid onto the live system is parsed by Linux tooling; a stray
+# CRLF in sudoers.d is a syntax error that disables sudo outright. Cover the
+# whole tree rather than chasing extensions (many of these files have none).
+profile/airootfs/** text eol=lf
+profile/airootfs/**/*.png binary
