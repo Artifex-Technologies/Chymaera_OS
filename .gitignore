@@ -20,3 +20,6 @@ packages/**/*.log
 *.swp
 .DS_Store
 Thumbs.db
+
+# Local progress notes
+PROGRESS.md
