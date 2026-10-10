@@ -42,7 +42,7 @@ jobs:
       - name: Install git (needed before checkout can run)
         run: pacman -Syu --noconfirm --needed git
 
-      # packages/sarina is a private repo (ChymaeraLabs/Sarina). The default
+      # packages/sarina is a private repo (Artifex-Technologies/Sarina). The default
       # GITHUB_TOKEN cannot check out a different private repo, so this
       # needs a PAT/deploy key with read access to it, stored as the
       # SARINA_REPO_TOKEN secret. Until that secret is added, the main repo

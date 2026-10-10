@@ -1,4 +1,4 @@
-# Chymaera Linux package list for mkarchiso.
+# Chymaera OS package list for mkarchiso.
 #
 # Section 1 is archiso's releng base list, unmodified (installer, live-boot,
 # and hardware-support packages: archlinux/archiso configs/releng/packages.x86_64).

@@ -1,5 +1,5 @@
-NAME="Chymaera Linux"
-PRETTY_NAME="Chymaera Linux"
+NAME="Chymaera OS"
+PRETTY_NAME="Chymaera OS"
 ID=chymaera
 ID_LIKE=arch
 BUILD_ID=rolling

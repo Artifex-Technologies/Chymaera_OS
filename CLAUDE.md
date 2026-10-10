@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-Chymaera Linux is an Arch-based security distribution. This repo contains **no
+Chymaera OS is an Arch-based security distribution. This repo contains **no
 application code** — it is an [archiso](https://github.com/archlinux/archiso)
 profile plus the packaging and build glue that turns it into a bootable ISO.
 The only first-party software (Sarina) lives in a separate private repo,
@@ -181,7 +181,7 @@ distro is.
 ## Working alongside other Claude instances
 
 Other instances work on the sibling projects in this ecosystem — chiefly
-**Sarina** (`ChymaeraLabs/Sarina`, vendored here as `packages/sarina`). They
+**Sarina** (`Artifex-Technologies/Sarina`, vendored here as `packages/sarina`). They
 have repo access. This section is the coordination surface: keep it a
 **contract**, not a message log. Anything that is a passing note belongs in a
 commit message or the PR, not here — CLAUDE.md loads into every session, so
@@ -277,7 +277,7 @@ the capabilities that gap depends on — see `docs/ARCHITECTURE.md`:
    `~/.local/state/omarchy/agents/usage/sarina.json` (any file there gets a tab),
    read the other agents' records for a unified usage view, and only later
    launch or supervise other agents, proposal-first with human approval and
-   Chymaera Sentry watching. Omarchy starts agents in auto-approve modes, so an
+   Heimdall watching. Omarchy starts agents in auto-approve modes, so an
    unsupervised launcher is a privilege-escalation path. See `docs/DESKTOP.md`.
    **Built on the Sarina side** as `sarina fleet-usage`, `fleet-status` and
    `fleet-launch` (Sarina's `docs/ECOSYSTEM.md` §1); this repo ships the panel

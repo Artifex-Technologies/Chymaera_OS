@@ -4,8 +4,8 @@
 
 iso_name="chymaera"
 iso_label="CHYMAERA_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
-iso_publisher="Chymaera Linux <https://github.com/Artifex-Technologies/Chymaera_OS>"
-iso_application="Chymaera Linux Live/Install Medium"
+iso_publisher="Chymaera OS <https://github.com/Artifex-Technologies/Chymaera_OS>"
+iso_application="Chymaera OS Live/Install Medium"
 iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)"
 install_dir="chymaera"
 buildmodes=('iso')

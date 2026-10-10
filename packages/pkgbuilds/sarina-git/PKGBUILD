@@ -1,4 +1,4 @@
-# Maintainer: Chymaera Linux Contributors
+# Maintainer: Chymaera OS Contributors
 #
 # Local-dev/ISO-build package for Sarina. Builds directly from whatever
 # commit the packages/sarina submodule is checked out to, so advancing it

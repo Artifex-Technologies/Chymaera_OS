@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds the Chymaera Linux ISO. Must run on Arch Linux (bare metal, VM, or
+# Builds the Chymaera OS ISO. Must run on Arch Linux (bare metal, VM, or
 # an archlinux Docker container) as root or via sudo — mkarchiso requires it.
 #
 # What this does, in order:

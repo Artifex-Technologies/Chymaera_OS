@@ -303,7 +303,7 @@ keyring (gnome-keyring or kwallet).
 - **Kill switch belongs outside Sarina.** If the VPN must fail closed, that rule
   lives in nftables (or the app's own NetworkManager kill switch), so a crashed
   or prompt-injected agent cannot leave it open. Sarina may *propose* changes to
-  network config; a human approves them, and Chymaera Sentry is the natural
+  network config; a human approves them, and Heimdall is the natural
   watcher for that surface.
 - **Adapting to updates** means Sarina reading the package's changelog and
   version delta after `pacman -Syu` and flagging what changed for the VPN
